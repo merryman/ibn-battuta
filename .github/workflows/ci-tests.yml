@@ -1,0 +1,38 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  Tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout lively.next
+        uses: actions/checkout@v3
+        with:
+          repository: LivelyKernel/lively.next
+          ref: a2f54f678bc0e2664d1d9589c4051010fdd87e53
+      - run: pwd
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18.12.1'
+      - name: Install lively.next
+        run: |
+          chmod a+x ./install.sh
+          ./install.sh
+      - name: Checkout Project Repository
+        uses: actions/checkout@v3
+        with:
+          path: local_projects/merryman-ibn-battuta
+      - name: Start lively.next
+        run: |
+          chmod a+x ./start.sh
+          ./start.sh > /dev/null 2>&1 &
+          # wait until server is guaranteed to be running
+          sleep 30
+      - name: Run CI Test Script 
+        run:  ./scripts/test.sh merryman-ibn-battuta
